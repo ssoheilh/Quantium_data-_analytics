@@ -1,0 +1,49 @@
+library(readxl)
+library(dplyr)
+library(ggplot2)
+
+df_pb <- read.csv('QVI_purchase_behaviour.csv')
+df_td <- read_excel('QVI_transaction_data.xlsx')
+
+# Checking to see whether there is any null values in any of the dataframes
+colSums(is.na(df_pb))
+colSums(is.na(df_td))
+
+# Checking whether the data format is appropriate for different attributes
+
+sapply(df_pb , class)
+sapply(df_td, class)
+
+#Let's change the class of dates from numeric to date
+
+df_td$DATE <- as.Date(df_td$DATE, origin = "01-01-1900"
+                      , format = '%d-%m-%Y')
+
+### Exploratory data analysis (EDA) of purchaes behaviour
+
+barplot(table(df_pb$PREMIUM_CUSTOMER))
+barplot(table(df_pb$LIFESTAGE) , cex.names = 0.2 )
+(ggplot(df_pb , aes(x=PREMIUM_CUSTOMER)) + geom_bar(stat="count"
+        , width = 0.5 , fill='steelblue') + theme_minimal())
+
+(ggplot(df_pb , aes(x=LIFESTAGE)) + geom_bar(stat = 'count')
+  + theme(text = element_text(size=10),
+   axis.text.x = element_text(angle=90 , hjust=1)) 
+  + scale_y_continuous(breaks = seq(0,15000,1000)))
+# Getting to know what unique values are assigned to the categorical attributes
+# for customer behaviour
+
+sapply(df_pb[,c('LIFESTAGE','PREMIUM_CUSTOMER')] , unique)
+
+# Getting to know how many unique values are assigned to each categorical 
+#attribute for customer behaviour
+
+sapply(sapply(df_td[,colnames(df_td)] , unique),length)
+
+#Now we can merge the dataframes
+
+df <- merge(x=df_td , y = df_pb , by = 'LYLTY_CARD_NBR' , all.x = TRUE)
+sum(is.na(df))
+sapply(sapply(df[,colnames(df)] , unique),length)
+
+##
